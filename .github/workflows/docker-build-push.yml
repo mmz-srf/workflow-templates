@@ -1,0 +1,39 @@
+name: Build and push Image
+
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      GLOBAL_GITHUB_ACCESS_TOKEN:
+        required: true
+      DOCKERHUB_REPOSITORY:
+        required: true
+
+jobs:
+  build_and_push:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker Image
+        uses: mr-smithers-excellent/docker-build-push@v5.6
+        with:
+          dockerfile: ./Dockerfile
+          image: ${{ secrets.DOCKERHUB_REPOSITORY }}/${{ inputs.image-name }}
+          registry: docker.io
+          tags: ${{ inputs.image-tag }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
