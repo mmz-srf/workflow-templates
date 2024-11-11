@@ -14,8 +14,6 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
-      GLOBAL_GITHUB_ACCESS_TOKEN:
-        required: true
       DOCKERHUB_REPOSITORY:
         required: true
 
@@ -25,6 +23,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate a token from an installed Github App
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.<YOUR-TEAM>_GITHUB_APP_ID }}
+          private-key: ${{ secrets.<YOUR-TEAM>_GITHUB_APP_KEY }}
+        
       - name: Check out the repo
         uses: actions/checkout@v3
 
@@ -35,5 +40,6 @@ jobs:
           image: ${{ secrets.DOCKERHUB_REPOSITORY }}/${{ inputs.image-name }}
           registry: docker.io
           tags: ${{ inputs.image-tag }}
+          token: ${{ steps.app-token.outputs.token }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
